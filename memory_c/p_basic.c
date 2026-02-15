@@ -123,3 +123,85 @@
 //     return 0;
 // }
 
+// Double pointer
+// Lets make an matrix of integers using double pointer
+
+// void allocate_array(int ***arr, size_t rows, size_t cols) {
+//     *arr = malloc(rows * sizeof(int *));
+//     for (size_t i = 0; i < rows; i++) {
+//         (*arr)[i] = malloc(cols * sizeof(int));
+//     }
+// }
+
+// void fill_array(int **arr, size_t rows, size_t cols) {
+//     for (size_t i = 0; i < rows; i++) {
+//         for (size_t j = 0; j < cols; j++) {
+//             arr[i][j] = (int)i * j;
+//         }
+//     }
+// }
+
+// void print_array(int **arr, size_t rows, size_t cols) {
+//     for (size_t i = 0; i < rows; i++) {
+//         for (size_t j = 0; j < cols; j++) {
+//             printf("%d ", arr[i][j]);
+//         }
+//         printf("\n");
+//     }
+// }
+
+// int main() {
+//     size_t rows, cols;
+
+//     printf("Enter rows: ");
+//     scanf("%zu", &rows);
+
+//     printf("Enter cols: ");
+//     scanf("%zu", &cols);
+
+//     int **arr = NULL;
+
+//     allocate_array(&arr, rows, cols);
+//     fill_array(arr, rows, cols);
+//     print_array(arr, rows, cols);
+
+//     for (size_t i = 0; i < rows; i++)
+//         free(arr[i]);
+
+//     free(arr);
+
+//     return 0;
+// }
+
+// Lets make a matrix multiplication using double pointer
+
+// void allocate_array(int **arr,size_t size) {
+//     *arr =(int *) malloc(size * sizeof(int));
+// }
+
+// void fill_array(int **arr,size_t size) {
+//     for(size_t i = 0; i < size; i++) (*arr)[i] = (int)i;
+// }
+
+// void print_array(int **arr,size_t size) {
+//     for(size_t i = 0; i < size; i++) printf("%d ",(*arr)[i]);
+// }
+
+// int main(void) {
+//     size_t elements;
+
+//     printf("Enter the number of elements: ");
+//     scanf("%zu", &elements);
+
+//     int *arr = NULL;
+
+//     allocate_array(&arr,elements);
+
+//     fill_array(&arr,elements);
+
+//     print_array(&arr,elements);
+
+//     free(arr);
+
+//     return 0;
+// }
