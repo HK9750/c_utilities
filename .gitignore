@@ -32,6 +32,7 @@ vendor/
 
 # Compiled binary (common names)
 main
+server
 a.out
 
 # CMake
