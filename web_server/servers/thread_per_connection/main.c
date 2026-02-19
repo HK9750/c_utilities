@@ -1,6 +1,9 @@
 #include "server.h"
+#include "../../common/include/logger.h"
 
 int main() {
+    logger_init(LOG_DEBUG);
+
     server_t server;
     server_init(&server, 8080);
     server_set_routes(&server);

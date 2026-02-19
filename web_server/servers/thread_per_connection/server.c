@@ -3,10 +3,12 @@
 #include "../../common/include/request.h"
 #include "../../common/include/response.h"
 #include "../../common/include/utils.h"
+#include "../../common/include/logger.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -45,6 +47,11 @@ static void* handle_connection(void* arg) {
     server_t* server = targ->server;
     free(targ);
 
+    char client_ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &conn->addr.sin_addr, client_ip, sizeof(client_ip));
+    int client_port = ntohs(conn->addr.sin_port);
+    LOG_INFO("connection accepted from %s:%d (fd %d)", client_ip, client_port, conn->fd);
+
     char buffer[4096];
     int n = connection_read(conn, buffer, sizeof(buffer));
     if (n > 0) {
@@ -63,10 +70,17 @@ static void* handle_connection(void* arg) {
         char* res_data = http_response_build(&res, &res_len);
         connection_write(conn, res_data, res_len);
 
+        LOG_INFO("%s %s -> %d (%zu bytes)",
+                 http_method_str(req.method),
+                 req.path ? req.path : "(null)",
+                 res.status_code,
+                 res_len);
+
         free(res_data);
         http_response_free(&res);
         http_request_free(&req);
     }
+    LOG_DEBUG("connection from %s:%d finished", client_ip, client_port);
     connection_close(conn);
     free(conn);
     return NULL;
@@ -85,7 +99,7 @@ void server_set_routes(server_t* server) {
 void server_start(server_t* server) {
     int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (listen_fd < 0) {
-        perror("socket");
+        LOG_ERROR("socket creation failed: %s", strerror(errno));
         exit(1);
     }
     int opt = 1;
@@ -97,35 +111,35 @@ void server_start(server_t* server) {
     addr.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(listen_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-        perror("bind");
+        LOG_ERROR("bind failed on port %d: %s", server->port, strerror(errno));
         close(listen_fd);
         exit(1);
     }
     if (listen(listen_fd, server->backlog) < 0) {
-        perror("listen");
+        LOG_ERROR("listen failed: %s", strerror(errno));
         close(listen_fd);
         exit(1);
     }
 
-    printf("Server listening on port %d\n", server->port);
+    LOG_INFO("server listening on port %d", server->port);
 
     while (1) {
         connection_t* conn = malloc(sizeof(connection_t));
         if (!conn) {
-            perror("malloc");
+            LOG_ERROR("malloc failed for connection: %s", strerror(errno));
             continue;
         }
         conn->addr_len = sizeof(conn->addr);
         conn->fd = accept(listen_fd, (struct sockaddr*)&conn->addr, &conn->addr_len);
         if (conn->fd < 0) {
-            perror("accept");
+            LOG_ERROR("accept failed: %s", strerror(errno));
             free(conn);
             continue;
         }
 
         thread_arg_t* targ = malloc(sizeof(thread_arg_t));
         if (!targ) {
-            perror("thread_arg malloc");
+            LOG_ERROR("malloc failed for thread arg: %s", strerror(errno));
             connection_close(conn);
             free(conn);
             continue;
@@ -135,7 +149,7 @@ void server_start(server_t* server) {
 
         pthread_t thread;
         if (pthread_create(&thread, NULL, handle_connection, targ) != 0) {
-            perror("pthread_create");
+            LOG_ERROR("pthread_create failed: %s", strerror(errno));
             connection_close(conn);
             free(conn);
             free(targ);

@@ -1,7 +1,8 @@
 // "POST /login HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/json\r\nContent-Length: 18\r\n\r\n{\"user\":\"admin\"}"
 #include "../include/request.h"
-#include<string.h>
-#include<stdlib.h>
+#include "../include/logger.h"
+#include <string.h>
+#include <stdlib.h>
 
 void http_request_init(http_request_t* req) {
     req->method = HTTP_GET;
@@ -36,7 +37,10 @@ void assign_http_method(http_request_t** req, char* method_str) {
 
 void http_request_parse(http_request_t* req, const char* raw_request) {
     char* buf = strdup(raw_request);
-    if (!buf) return; 
+    if (!buf) {
+        LOG_ERROR("strdup failed during request parse");
+        return;
+    }
     char* ptr = buf;
     char* method_str = get_token(&ptr);
     if (method_str) {
@@ -69,6 +73,15 @@ void http_request_parse(http_request_t* req, const char* raw_request) {
         }
     }
     free(buf);
+
+    if (req->path) {
+        LOG_DEBUG("parsed request: %s %s %s",
+                  http_method_str(req->method),
+                  req->path,
+                  req->version ? req->version : "HTTP/??");
+    } else {
+        LOG_WARN("failed to parse request path from raw data");
+    }
 }
 
 void http_request_free(http_request_t* req) {
