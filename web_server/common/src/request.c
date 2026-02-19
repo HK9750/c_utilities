@@ -13,32 +13,34 @@ void http_request_init(http_request_t* req) {
 }
 
 static char* get_token(char** src) {
-    char* start = src;
-    while(**src && **src != ' ' && **src !='\r' && **src !='\n') (*src)++;
-    if(*src == start) return NULL;
-    size_t len = src - start;
+    char* start = *src;
+    while (**src && **src != ' ' && **src != '\r' && **src != '\n') (*src)++;
+    if (*src == start) return NULL;
+    size_t len = *src - start;
     char* token = malloc(len + 1);
-    memcpy(token,start,len);
+    if (!token) return NULL; 
+    memcpy(token, start, len);
     token[len] = '\0';
     return token;
 }
 
-void assign_http_method(http_request_t** req,char * method_str) {
-    if(strcmp(method_str,"GET")) (*req)->method = HTTP_GET;
-    else if(strcmp(method_str,"POST")) (*req)->method = HTTP_POST;
-    else if(strcmp(method_str,"PUT")) (*req)->method = HTTP_PUT;
-    else if(strcmp(method_str,"DELETE")) (*req)->method = HTTP_DELETE;
-    else if(strcmp(method_str,"PATCH")) (*req)->method = HTTP_PATCH;
-    else if(strcmp(method_str,"HEAD")) (*req)->method = HTTP_HEAD;
+void assign_http_method(http_request_t** req, char* method_str) {
+    if (strcmp(method_str, "GET") == 0)         (*req)->method = HTTP_GET;
+    else if (strcmp(method_str, "POST") == 0)   (*req)->method = HTTP_POST;
+    else if (strcmp(method_str, "PUT") == 0)    (*req)->method = HTTP_PUT;
+    else if (strcmp(method_str, "DELETE") == 0) (*req)->method = HTTP_DELETE;
+    else if (strcmp(method_str, "PATCH") == 0)  (*req)->method = HTTP_PATCH;
+    else if (strcmp(method_str, "HEAD") == 0)   (*req)->method = HTTP_HEAD;
     else (*req)->method = HTTP_OPTIONS;
 }
 
-void http_request_parse(http_request_t* req, const char* raw_request){
-    char *buf = strdup(raw_request);
-    char *ptr = buf;
+void http_request_parse(http_request_t* req, const char* raw_request) {
+    char* buf = strdup(raw_request);
+    if (!buf) return; 
+    char* ptr = buf;
     char* method_str = get_token(&ptr);
-    if(method_str) {
-        assign_http_method(&req,method_str);
+    if (method_str) {
+        assign_http_method(&req, method_str);
         free(method_str);
     }
     if(*ptr ==  ' ') ptr++;
@@ -70,10 +72,8 @@ void http_request_parse(http_request_t* req, const char* raw_request){
 }
 
 void http_request_free(http_request_t* req) {
-    free(req->method);
-    free(req->method);
     free(req->path);
+    free(req->version);
     free(req->headers);
     free(req->body);
-    free(req->len);
 }

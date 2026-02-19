@@ -7,10 +7,12 @@ void connection_init(connection_t* conn, int fd) {
 }
 
 int connection_read(connection_t* conn, char* buffer, size_t buf_size) {
+    if (conn->fd < 0) return -1;
     return read(conn->fd, buffer, buf_size - 1);
 }
 
 int connection_write(connection_t* conn, const char* data, size_t len) {
+    if (conn->fd < 0) return -1;
     return write(conn->fd, data, len);
 }
 

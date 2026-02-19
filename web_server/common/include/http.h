@@ -1,4 +1,4 @@
-#ifndef HTTP_H
+    #ifndef HTTP_H
 #define HTTP_H
 
 typedef enum {
@@ -14,7 +14,7 @@ typedef enum {
 typedef enum {
     HTTP_200_OK = 200,
     HTTP_400_BAD_REQUEST = 400,
-    HTTP_401_FORBIDDEN = 401,
+    HTTP_401_UNAUTHORIZED = 401,
     HTTP_404_NOT_FOUND = 404,
     HTTP_500_INTERNAL_SERVER_ERROR = 500,
 } http_status_code_t;

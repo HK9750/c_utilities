@@ -2,35 +2,48 @@
 #include <stdlib.h>
 #include <string.h>
 
-void response_init(http_response_t* res) {
+void http_response_init(http_response_t* res) {
     res->status_code = HTTP_200_OK;
     res->headers = NULL;
     res->body_len = 0;
     res->body = NULL; 
 }
 
-void response_add_status(http_response_t* res, http_status_code_t status_code){
+void http_response_set_status(http_response_t* res, http_status_code_t status_code) {
     res->status_code = status_code;
 }
 
-void response_add_header(http_response_t* res,const char* key,const char* value) {
-    char header_line[256];
-    sprintf(header_line,"%s: %s\r\n", key, value);
-    if(!res->headers) {
+void http_response_add_header(http_response_t* res, const char* key, const char* value) {
+    size_t needed = strlen(key) + strlen(value) + 5; 
+    char* header_line = malloc(needed);
+    if (!header_line) return;
+    snprintf(header_line, needed, "%s: %s\r\n", key, value);
+
+    if (!res->headers) {
         res->headers = strdup(header_line);
     } else {
         size_t new_len = strlen(res->headers) + strlen(header_line) + 1;
         char* new_headers = realloc(res->headers, new_len);
-        if(new_headers) {
+        if (new_headers) {
             strcat(new_headers, header_line);
             res->headers = new_headers;
         }
     }
+    free(header_line);
 }
 
-char* response_build(http_response_t* res,size_t* len) {
-    char status_line[64];
-    sprintf(status_line, "HTTP/1.1 %d %s\r\n", res->status_code, http_status_str(res->status_code));
+void http_response_set_body(http_response_t* res, const char* body, size_t len) {
+    free(res->body);
+    res->body = malloc(len + 1);
+    memcpy(res->body, body, len);
+    res->body[len] = '\0';
+    res->body_len = len;
+}
+
+
+char* http_response_build(http_response_t* res, size_t* len) {
+    char status_line[128];
+    snprintf(status_line, sizeof(status_line), "HTTP/1.1 %d %s\r\n",res->status_code, http_status_str(res->status_code));
     size_t total_len = strlen(status_line);
     if (res->headers) total_len += strlen(res->headers);
     total_len += 2;
@@ -49,7 +62,7 @@ char* response_build(http_response_t* res,size_t* len) {
     return response;
 }
 
-void response_free(http_response_t* res) {
+void http_response_free(http_response_t* res) {
     free(res->headers);
     free(res->body);
 }

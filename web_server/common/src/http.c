@@ -17,6 +17,7 @@ const char* http_status_str(http_status_code_t status) {
     switch (status) {
         case HTTP_200_OK: return "200 OK";
         case HTTP_400_BAD_REQUEST: return "400 Bad Request";
+        case HTTP_401_UNAUTHORIZED: return "401 Unauthorized";
         case HTTP_404_NOT_FOUND: return "404 Not Found";
         case HTTP_500_INTERNAL_SERVER_ERROR: return "500 Internal Server Error";
         default: return "UNKNOWN STATUS";

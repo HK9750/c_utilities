@@ -8,6 +8,7 @@ void router_init(router_t* router) {
 
 void router_add_route(router_t* router, http_method_t method, const char* path, route_handler_t handler) {
     route_entry_t* entry = malloc(sizeof(route_entry_t));
+    if (!entry) return;
     entry->path = strdup(path);
     entry->method = method;
     entry->handler = handler;
