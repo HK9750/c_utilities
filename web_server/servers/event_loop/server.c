@@ -12,7 +12,12 @@
 #include <netinet/in.h>
 #include <errno.h>
 
+// set_nonblock is a helper function that sets a file descriptor to non-blocking mode using fcntl system call
 static void set_nonblock(int fd) {
+    // fcntl is a system call that performs various operations on a file descriptor. 
+    // F_GETFL is used to get the file status flags, and F_SETFL is used to set the file status flags.
+    //  O_NONBLOCK is a flag that makes the file descriptor non-blocking,
+    //  meaning that I/O operations will return immediately instead of blocking if they cannot be completed immediately.
     int flags = fcntl(fd, F_GETFL, 0);
     fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
@@ -25,7 +30,7 @@ static int on_accept(event_loop_t* loop, int listen_fd) {
     if (client_fd < 0) return -1;
     set_nonblock(client_fd);
 
-    client_t* client = malloc(sizeof(client_t));
+    client_t* client =(client_t *)malloc(sizeof(client_t));
     client->fd = client_fd;
     client->offset = 0;
     client->to_send = 0;
@@ -107,6 +112,7 @@ static int on_write(event_loop_t* loop, int fd) {
 }
 
 static void handle_index(http_request_t* req, http_response_t* res) {
+    (void)req;
     size_t size;
     char* content = utils_read_file("../../www/index.html", &size);
     if (content) {
