@@ -65,7 +65,3 @@ int main() {
     close(socket_file_descriptor);
     return 0;
 }
-
-// now the server is listening on port 8080 but how can i get the log that
-// a client has connected? You can use printf() statements to log connection events.
-// For example, you can print the client's IP address and port number when a connection is accepted.
