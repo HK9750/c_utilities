@@ -124,7 +124,7 @@ void server_start(server_t* server) {
     LOG_INFO("server listening on port %d", server->port);
 
     while (1) {
-        connection_t* conn = malloc(sizeof(connection_t));
+        connection_t* conn = (connection_t *)malloc(sizeof(connection_t));
         if (!conn) {
             LOG_ERROR("malloc failed for connection: %s", strerror(errno));
             continue;
@@ -137,7 +137,7 @@ void server_start(server_t* server) {
             continue;
         }
 
-        thread_arg_t* targ = malloc(sizeof(thread_arg_t));
+        thread_arg_t* targ = (thread_arg_t *)malloc(sizeof(thread_arg_t));
         if (!targ) {
             LOG_ERROR("malloc failed for thread arg: %s", strerror(errno));
             connection_close(conn);
