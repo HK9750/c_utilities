@@ -4,6 +4,7 @@
 #include "../../common/include/request.h"
 #include "../../common/include/response.h"
 #include "../../common/include/utils.h"
+#include "../../common/include/demo_routes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,6 +70,7 @@ void server_init(server_t* server, int port) {
 
 void server_set_routes(server_t* server) {
     router_add_route(&server->router, HTTP_GET, "/", handle_index);
+    demo_routes_register(&server->router);
 }
 
 void server_start(server_t* server) {
